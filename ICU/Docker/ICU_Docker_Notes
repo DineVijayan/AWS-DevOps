@@ -1,0 +1,148 @@
+yum install docker //install docker
+
+service docker status //view the docker status
+
+service docker start //after installing the docker will be inactive. have to start the docker
+
+docker images //view the list of images 
+
+docker build -t "name_of_the_image" //to build the image
+
+docker ps //view the list of running container
+
+docker ps -a //view the all running & non-running countainer
+
+docker pull httpd //to pull the image from docker hub
+
+docker run -itd --name cont1 -p "9090:80" image id //to create a container. count1 is a name. 
+                                                     9090 is to change port from 80.
+
+docker exec -it container_id /bin/bash //to edit the conatainer. container id like 
+                                         f8 starting two dight of cont id.
+                                         After entering the container type ls go to htdocs -> index.html
+
+apt update //In container we cannot perform any command. so we have to install it
+
+apt install vim  -y //to view the index.html
+
+docker stop f8 //to stop the container 
+
+docker start f8 //to start the container
+
+docker rm -f 3c //to remove the container
+
+docker rmi 92 //to remove image
+
+docker run -itd --name dinesh -p "9090:80" nginix //we can create a container without creating a image
+//for nginix html file will be after entering container ls -> usr -> share -> nginx -> html -> index.html
+
+cat /etc/os-release //to see the running os inside the container
+
+docker system prune //it will delete the unused, network not used containers will be deleted
+
+===========Push the image to dockerhub==============
+1. docker commit container_id new_image_name //want to push the image to dockerhub means convert the container to image
+
+2. doker save -o /root/imgbackup.tar image_name //to save the image in a local area for backup purpose
+
+3. docker load -i imgbackup.tar //in case image got missed we can use the local backup image using this command
+
+4. docker tag image_name docker_acount_name/image_name //have to set a tag name to push the image to dockerhub for unique name
+
+5. docker login //to login the dockerhub
+
+6. docker push image_name //push the image to dockerhub
+======================================================
+
+docker logs container id //to see the container log 
+
+docker top container id //to see the process running like task manager
+
+docker stats container id //to see how many resource and memory occupied
+
+docker inspect containerid //to view the every information of the container
+
+docker info //to view the every information of the machine
+
+Sonarcube Command
+=================
+docker-compose up -d //to run the yaml file
+
+sysctl vm.max_map_count //to check the memory allocation is grater than or equal to 524288
+
+sysctl -w vm.max_map_count=524288
+
+========Docker Volume========
+Bind mounts: 
+	This type of volume mounts a host file or directory into a container. With bind mounts, changes in the container or on the host machine are immediately 
+reflected in the other. They offer high performance but are platform-dependent since they rely on the host's filesystem.Example:
+bash
+
+   docker run -v /host/path:/container/path ...
+   docker run -v /tmp/data:/usr/local/apache2/htdocs --name container1 -P httpd
+  
+===========================================================================================
+Named volumes:
+	 Docker manages these volumes and stores them in a specific location within the Docker directory (/var/lib/docker/volumes/ on Linux). Named volumes are easier 
+to back up and share than bind mounts, and they work well across different platforms.Example:
+bash
+   docker volume create my_volume
+   docker volume inspect my_volume    
+   docker run -v my_volume:/container/path ...
+    
+   docker run -d -v my_volume:/usr/local/apache2/htdocs -p 80:80 httpd:latest
+
+***************************************************
+Java Docker File --> Maveen -->War,Jar or Ear
+=============================================
+From OPENJDK:11-ALPINE
+MAINTAINER pasu
+WORKDIR /App
+RUN apt update
+RUN MVN INSTALL
+ADD //download anything fron url
+COPY Target/Myweb.war /App
+EXPOSE 8080
+CMD ["JAVA","Myweb.war"]
+
+NodeJS Docker File -->NPM{node package manager} -->Json format
+==============================================================
+FROM NODEJS:20
+WORKDIR /App
+RUN NPM INSTALL
+COPY PAKAGE.JSON PACKAGE-LOCK.JSON /APP
+EXPOSE 3000
+CMD ["NPM", "START"]
+
+Python Docker File -->Requirement.TXT[Flask,Unicorn,Jinja2]
+===========================================================
+FROM PYTHON
+WORKDIR /App
+COPY App.py /App
+COPY Requirement.txt /App
+RUN PIP INSTALL /App/Requirement.txt
+EXPOSE 5000
+CMD ["APP.py", "Unicorn"]
+
+
+=========Link(Two Tire Architecture)=========
+docker run -itd --name db -e "MYSQL_ROOT_PASSWORD=admin123" mysql //it is a database container to install mysql enviroinment variable important
+
+docker run -itd --name "wordpresscont" --link db:mysql -p "2424:80" wordpress //wordpress is webserver container
+
+======Basic docker command website=======
+https://geekflare.com/docker-commands/
+=========================================
+
+===Task===
+Docker Network?
+Bridge Network 
+Host Network
+Null Network 
+
+Docker compose
+diff b/w CMD & Endpoint
+
+
+
+
