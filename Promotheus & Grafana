@@ -1,0 +1,56 @@
+Prometheus
+==========
+Prometheus is a Master and Slave concept. it will store the slave logs to the master. The logs of the node will be stored in the master within 15 sec is called scrape interval.
+-> In Master downlord Prometheus
+-> In Node downlord Node-exportor
+
+1-> Downlord Promethius in master
+2-> Copy the binary files inside the promethisis(prometheus,promtool) to the path /usr/local/bin
+3-> ./prometheus --config.file=prometheus.yml //to start the prometheus
+4-> Now the webite will be visible in google by using the ip/9090
+5-> Now you can monitor the master node
+6-> Downlord the Node-exportor in slave machine it will be available in the Promothesis downlord page itself
+7-> once downlord the Node-exportor in the another machine you can monitor that machine using promothesis
+8-> start the Node-exportor 
+9-> ./node_exporter //it start the node exporter
+10-> In the machine prometheus.yml file add the configuration and restart the promothesis
+11-> ./prometheus --config.file=prometheus.yml & //to restart the prometheus
+
+Grafana
+=======
+1-> Downlord the grafana from google
+2-> In the grafana bin folder start the grafana
+3-> ./grafana-server //to start the grafana
+4-> view the grafana dashbord in google
+5-> In the home->connection->select promethius->add the URL of promethius
+6-> home->dashbord->new dashbord->add visualisation->select promithius
+7-> See the more clear visualisation using Grafana search for grafana dashbord copy the clipbord
+8-> Give it in the dashbord->new->import 
+
+./prometheus --config.file=prometheus.yml //to start the prometheus
+
+./prometheus --config.file=prometheus.yml & //to restart the prometheus
+
+./node_exporter //t start the node exporter
+
+./grafana-server //to start the grafana
+=======================================================
+Port no:
+========
+prometheus -> 9090
+
+Node-exporter -> 9100
+
+Grafana -> 3000
+========================================================
+Grafana
+=======
+Grafana is a dashboard tool
+In Grafana only we can monitor the slave log only 
+
+Prometheus
+==========
+Prometheus is a infrastucture monitoring tool
+In Prometheus we can monitor both the master & slave logs
+
+
