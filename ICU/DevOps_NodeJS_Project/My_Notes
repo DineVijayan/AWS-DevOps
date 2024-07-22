@@ -1,0 +1,155 @@
+Plugins
+-------
+Git 
+SonarQube Scanner
+kubernetes
+kubernetes CLI
+
+SonarQube
+---------
+install the plugin SonarQube Scanner
+Manage_jenkins->Tools->SonarQube Scanner installations->give the name in pipeline script of sonar
+Manage_jenkins->system->SonarQube_Installation->give the name in pipeline script of sonar->give the Sonar_URL
+
+
+
+
+
+pipeline {
+    agent any
+    stages {
+        stage ('SCM checkout') {
+            steps {
+                script{
+                     git credentialsId: 'git credentialsId: 'git_password', url: 'https://github.com/DineVijayan/ecs-proj-npm.git'
+                }
+            }
+        }
+        stage ('SonarQube Code analysis'){
+            steps {
+                script{
+                    def scannerHome = tool 'sonarscanner4';
+                    withSonarQubeEnv('sonar-pro') {
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=rocket-nodejs"
+                    }
+                }
+            }
+        }
+        stage ('Build') {
+            steps {
+                script{
+                     sh 'npm install'
+                }
+            }
+        }
+        stage('Docker Build Images') {
+            steps {
+                script {
+                    sh 'docker build -t naresh2603/helm-rocket:v1 .'
+                    sh 'docker images'
+                }
+            }
+        }
+        stage('Docker Push') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'dockerPass', variable: 'dockerPassword')]) {
+                        sh "docker login -u naresh2603 -p ${dockerPassword}"
+                        sh 'docker push naresh2603/helm-rocket:v1'
+                        sh 'trivy image naresh2603/helm-rocket:v1 > scan.txt'
+                    }
+                }
+            }
+        }
+        stage('Deploy on k8s') {
+            steps {
+                script {
+                    withKubeCredentials(kubectlCredentials: [[ credentialsId: 'kubernetes' ]]) {
+                        sh 'kubectl create secret generic helm --from-file=.dockerconfigjson=/opt/ecr/config.json  --type kubernetes.io/dockerconfigjson --dry-run=client -oyaml > secret.yaml'
+                        sh 'kubectl apply -f secret.yaml'
+                        sh 'helm package ./Helm'
+                        sh 'helm install myrocket ./myrocketapp-0.1.0.tgz'
+                        sh 'helm ls'
+                        sh 'kubectl get pods -o wide'
+                        sh 'kubectl get svc'
+                    }
+                }
+            }
+        }
+    }
+}
+
+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
+
+sqa_1f46889a18bd45bd16f153e9a073478a0a1c6b21
+
+stage('ECR Push') {
+            steps {
+                script {
+                        sh "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 211125712742.dkr.ecr.ap-south-1.amazonaws.com"
+                        sh "docker tag dinevijayan/helm-rocket:latest 211125712742.dkr.ecr.ap-south-1.amazonaws.com/prod:latest"
+                        sh "docker push 211125712742.dkr.ecr.ap-south-1.amazonaws.com/prod:latest"
+
+------------------------------
+pipeline {
+    agent any
+    stages {
+        stage ('SCM checkout') {
+            steps {
+                script{
+                     git credentialsId: 'Git_Cred', url: 'https://github.com/DineVijayan/ecs-proj-npm'
+                }
+            }
+        }
+        stage ('Build') {
+            steps {
+                script{
+                     sh 'npm install'
+                }
+            }
+        }
+        stage ('SonarQube Code analysis'){
+            steps {
+                script{
+                    def scannerHome = tool 'sonarscanner4';
+                    withSonarQubeEnv('sonar-pro') {
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=rocket-nodejs"
+                    }
+                }        
+            }
+        }
+        stage('Docker Build Images') {
+            steps {
+                script {
+                    sh 'docker build -t dinevijayan/helm-rocket:v1 .'
+                    sh 'docker images'
+                }
+            }
+        }
+        stage('Login to AWS ECR') {
+            steps {
+                script {
+                    sh 'aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 211125712742.dkr.ecr.ap-southeast-1.amazonaws.com'
+                    sh 'docker tag dinevijayan/helm-rocket:v1 211125712742.dkr.ecr.ap-southeast-1.amazonaws.com/dev:latest'
+                    sh 'docker push 211125712742.dkr.ecr.ap-southeast-1.amazonaws.com/dev:latest'
+                }
+            }
+        }
+        stage('Deploy on k8s') {
+            steps {
+                script {
+                    withKubeCredentials(kubectlCredentials: [[ credentialsId: 'kube_config' ]]) {
+                        sh 'helm package ./Helm'
+                        sh 'helm install myrocket ./myrocketapp-0.1.0.tgz'
+                        sh 'helm ls'
+                        sh 'kubectl get pods -o wide'
+                        sh 'kubectl get svc'
+                    }  
+                }
+            }
+        }
+    }
+}
+
+sh 'kubectl create secret generic helm --from-file=.ecrcredentials=/opt/ecr/credentials  --type kubernetes.io/ecrcredentials --dry-run=client -oyaml > secret.yaml'
+                        sh 'kubectl apply -f secret.yaml'
