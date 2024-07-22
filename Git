@@ -1,0 +1,96 @@
+git yum install git -y
+
+git --version
+
+Create the folder, go to the folder, create file in the folder
+
+git init //install the local repositary
+
+git status //to check the repositary was installed and to check the file was moved to 
+the staging area and local repositaary
+git 
+git add <file name> // this command is used to add the file to stagging area 
+if the file was in working directory means the file colour will be Red colour
+if the file was in Staging area means the file colour will be Green
+if the file was in Local Repositary means the file colour will be Black colour
+
+git commit -m "first commit" //to add file to localrepositary
+
+git commit -am "fourth line" //to add the file directly to local repo 
+
+git log //namba evalo panna commit la pakanum na 
+
+git log --oneline //To show the commit in one line
+
+git show <log ID> //to view the total detail of that commit
+
+git remote add origin https://github.com/DineVijayan/jan24dine.git //change the https link
+to name it as orgin
+
+git push origin master //push command to github repository
+
+for specify user:
+------------------
+ git config user.name "anu"
+ git config user.email "anu@gmail.com"
+
+================================================================================
+
+git branch <branch name> //Create a sub branch
+
+git branch //to view how many branches
+
+git checkout <branch name> //to swichover to sub branch or another branch
+
+git stash //to hide file in te branch this will be achived while the file in stagging area
+
+git stash pop "pop_no" //this will help to unhide the file in the stash
+
+git stash list //to list the stash file
+
+git branch -d "branch name" //to delete the branch
+ 
+========Smooth Merge==========
+
+git merge  <branch name> //Smooth branch
+
+========Conflict Branch==========
+git config --global merge.tool vimdiff
+git config --global merge.conflictstyle diff3
+git config --global mergetool.prompt false
+
+git mergetool
+
+:diffg LO – to select LOCAL box
+:diffg RE – to select REMOTE box
+:diffg BA – to select BASE box
+:wqa – To save and quit all
+================================== 
+
+Rebase
+===========
+git rebase master 
+
+Pull
+==========
+git pull orgin master //github la edit pannatha pull panni local repo eduthutu vera command
+
+Clone
+==========
+git clone <github url> //github la code dropdown la irruka url copy panni clone panni 
+developers work pannuvaga
+
+Fork
+==========
+Remember
+
+=======Webhook=======
+http://13.232.228.112:8080/github-webhook/
+
+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 -->Token
+
+
+
+
+
+
