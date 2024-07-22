@@ -1,0 +1,39 @@
+Shared Library :
+=============
+
+Sample Pipeline Script:
+===================
+
+@Library('my-shared-library') _
+pipeline {
+    agent any
+    stages {
+        stage('Example') {
+            steps {
+                myCustomStep() // Use the custom step defined in the shared library
+            }
+        }
+    }
+}
+
+
+
+
+under vars directory, save it as fileName.groovy
+=====================================
+
+File name should be in Camel Case
+
+
+def call() {
+  sh 'echo Hi June ICU Team'
+}
+
+
+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
+
+
+https://github.com/GopiStarkk/sharedlib.git
+
+
+Update Shared Library settings ====> Manage Jenkins === System === Add GIT URL under Global pipeline settings

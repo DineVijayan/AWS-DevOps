@@ -1,0 +1,81 @@
+pipeline {
+    agent any
+    stages {
+        stage('SCM Checkout'){
+            steps {
+            git credentialsId: 'ippopay', url: 'https://github.com/leehammesh/tech-ippopay.git'
+            sh 'ls'
+            }
+        }
+        stage ('SonarQube Analysis') {
+            steps {
+                script { 
+                    def scannerHome = tool 'sonarscanner4'
+                    withSonarQubeEnv('sonar-pro') {
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=tech-ippopay"
+                    }
+                }
+            }
+        }
+        stage("Quality Gate for Node.js") {
+            steps {
+                sleep(35)
+                timeout(time: 1, unit: 'HOURS') {
+                waitForQualityGate abortPipeline: true, credentialsId: 'sonar'
+                }
+            }
+            post {
+                failure {
+                    echo 'Sending slack notification from Jenkins'
+                    slackSend baseUrl: 'https://hooks.slack.com/services/', channel: '#sonar-test', color: 'good', failOnError: true, iconEmoji: 'CICD', message: 'build test', teamDomain: 'IppoPay', tokenCredentialId: 'slack-secret', username: 'IppoPay'
+                }
+            }
+        }
+    }
+}
+
+
+---
+pipeline {
+    
+agent any
+stages {
+stage('SCM Checkout') {
+steps {
+git credentialsId: 'ippopay', url: 'https://github.com/leehammesh/tech-ippopay.git'
+sh 'ls'
+}
+}
+stage('SonarQube Analysis for Node.js') {
+steps {
+script {
+parallel (
+'node application': {
+script {
+def scannerHome = tool 'sonarscanner4'
+withSonarQubeEnv('sonar-pro') {
+sh "${scannerHome}/bin/sonar-scanner"
+}
+}
+}
+)
+}
+}
+}
+stage("Quality Gate for Node.js") {
+steps {
+sleep(35)
+timeout(time: 1, unit: 'HOURS') {
+waitForQualityGate abortPipeline: true, credentialsId: 'sonar'
+}
+}
+post {
+failure {
+echo 'Sending slack notification from Jenkins'
+slackSend baseUrl: 'https://hooks.slack.com/services/', channel: '#sonar-test', color: 'good', failOnError: true, iconEmoji: 'CICD', message: 'build test', teamDomain: 'IppoPay', tokenCredentialId: 'slack-secret', username: 'IppoPay'
+}
+}
+}
+}
+}
+
