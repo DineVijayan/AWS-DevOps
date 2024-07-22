@@ -1,0 +1,36 @@
+How to Create Your Own VPC Steps:
+1. create VPC
+2. create subnet public and private
+3. create an internet gateway
+4. attached to the VPC into the internet gateway
+5. create public and private route tables and attach VPC
+5. communicate public subnet to the public route table
+6. communicate private subnet to the private route table
+7. communication to public route table into internet gateway.
+8. create a public security group and open port numbers 22, 80, and 443
+9. create a private security group and attached it to the public security group ID.
+10. create NAT gateway and attached public subnet and allocate an elastic IP address. 
+11. Nat gateway to private route communication.
+
+VPC Pearring 
+============
+create a vpc
+
+connect from pub machine to pvt machine create a file with name 'mykey.pem' in that file give the pvt key and use the below command
+
+Command to connect from public machine to private machine in linux:-
+-ssh -i mykey.pem ec2-user@"privateip of pvt machine"
+
+for pearring the vpc ip have to be diff from one another vpc ip or else you will get a conflict error while pearing
+
+after creating two vpc do the peering connection by using the acceptor and the requestor
+
+asign the present vpc cidr value in another vpc route table->routes
+
+asign the another vpc cidr value in present vpc route table->routes
+
+assign the present sg id to the another region sg to perform ping
+
+assign the another sg id to the present region sg to perform ping
+
+Ping protocol --> ICMP //open in security group
