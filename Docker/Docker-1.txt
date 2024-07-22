@@ -1,0 +1,62 @@
+1.create infra with ubuntu 18.04 LTS
+
+2.change to Root user(sudo su - root)
+
+update the ubuntu repo
+
+#apt-get update -y
+
+3.Install Docker
+
+#apt-get install docker.io -y
+#docker --version
+--------------------------------------
+keyword:
+
+dockerfile -->
+
+1. dockerfile -- In this we specify all the information about application to run.
+                 os, dependency, port, how to start application. "Dockerfile"
+   
+
+2. docker image -- dockerfile build --> docker image (like ami)
+
+3. docker container -- docker image run --> docker container (like ec2)
+
+4. docker hub -- docker remote repository
+ 
+
+
+create one container:
+
+~# docker pull httpd  -- pull the image from docker repo
+
+
+~# docker images  -- to view the images
+
+
+docker run -ird --name <container name> -p "prot number" <image name>
+~# docker run -itd --name myapache -p "8080:80" httpd  -- to run as container(intractive terminal detached)
+
+~# docker ps
+
+~# docker run -itd --name mynginx -p "8090:80" nginx
+
+
+docker ps --> is lists all running containers in docker engine.
+docker ps -a --> When we run docker it will list the container that had stop as well.
+
+Delete Image:
+#docker rmi <image id> -- image not running
+#docker rmi -f <image id> -- running image
+
+
+Delete container:
+#docker rm <log id> -- container not running
+
+#docker rm -f <log id> -- container is running
+
+# docker stop <container id>
+#docker start <containr id>
+
+

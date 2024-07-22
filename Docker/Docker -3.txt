@@ -1,0 +1,218 @@
+Writing Dockerfile:
+-------------------
+create file nano "Dockerfile"
+-----------------------------------------
+FROM ubuntu:latest
+MAINTAINER mani
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -y
+RUN apt install apache2 -y
+-----------------------------------------
+command to build the Dockerfile
+#docker build -t <imagename> .  
+
+-----------------------------------------
+
+FROM myhttpd   -----> here myhttpd is customised image
+LABEL Name="mani"
+RUN apt install git wget -y
+-----------------------------------------
+
+FROM centos:7
+LABEL Name="mani"
+RUN yum install httpd -y 
+CMD /bin/bash
+
+-----------------------------------------
+
+
+FROM centos
+LABEL Name="Mani"
+
+RUN cd /etc/yum.repos.d/
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+
+RUN yum -y install httpd
+
+CMD /bin/bash
+
+-----------------------------------------
+FROM python:3
+WORKDIR /usr/src/app
+COPY sample.py /usr/src/app
+ENTRYPOINT python3 sample.py  (this command will get executed when container is created using docker run command)
+-----------------------------
+print("enter your name")
+name = input()
+print("Welcome to", name)
+
+-----------------------------------------------
+#docker run <image name>
+
+
+d -> detached mode/background mode
+i -> input/interactive mode
+t -> terminal       
+
+-----------------------------------------------------------------------------------------------------
+Volume: Mounting the volume using -v exsiting container
+
+create index.html under /opt directory in your local.
+
+Ex: #mkdir /opt/www
+    #cd /opt/www
+    #echo "This is docker mount volume" > index.html
+
+
+#docker run -itd --name volumeconcept -p "2020:80" -v "/opt/www:/usr/local/apache2/htdocs" httpd
+
+
+add some files in docker container and check the local 
+----------------------------------------------------------------------------
+Container Access (Port Forwarding:)
+
+***************************************************
+From ubuntu
+MAINTAINER pasu
+RUN apt-get update
+RUN apt-get install openssh-server -y
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN echo 'root:welcome' | chpasswd
+RUN mkdir /var/run/sshd
+CMD ["/usr/sbin/sshd", "-D"]
+
+
+***************************************************
+
+
+#docker build -t <imagename> .
+
+#docker run -itd --name <containername> -p "<port number:22>" <imagename>
+
+login via putty and change port number instead of 22
+------------------------------------------------------------------------------------------------------
+Volume and Container access:
+
+#docker run -itd -p "9090:80" --name container1 -v "/usr/local/apache2/logs" httpd
+
+#docker run -itd -p "2222:22" --name container2 --volumes-from container1:ro sshimage
+
+
+------------------------------------------------------------------------------------------------------
+
+Link one container to another container:
+
+#docker run -itd --name db mysql
+
+#docker logs <container id>
+
+#docker rm -f db
+
+#docker run -itd --name db -e "MYSQL_ROOT_PASSWORD=admin123" mysql
+
+#docker ps -a
+
+#docker run -itd --name "wordpresscont" --link db:mysql -p "2424:80" wordpress
+
+#check port ip:2424
+
+#docker run -d --name myweb-server --link db(container name):mysql(wordpress mysql variable) -p "8082:80" wordpress
+
+
+----------------------------------------------------
+
+
+Networking:
+
+Docker Default Netork:
+
+1.Bridge Network
+2.Host Netwok
+3.Null Network
+
+#docker network ls
+#docker inspect <Bridge network id>
+Copy the subnet cidr blocks and paste the notepad
+
+#docker inspect <cont id>
+
+User Defined:(Own Bridge)
+
+https://docs.docker.com/network/network-tutorial-standalone/   -->user defined nw
+
+docker network create --driver bridge testnetwork
+
+ls
+
+-------------------------------------------------------
+
+compose: Install docker compose (https://docs.docker.com/compose/install/)
+
+docker-compose --version
+
+docker-compose.yaml
+*****************************************
+version: "3"
+services: #global value
+  database:
+    image: mysql:5.7
+    volumes:
+    - ./data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: somewordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+  wordpress:
+    image: wordpress
+    depends_on:
+    - database
+    ports:
+    - "8080:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: database:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+
+**********************************
+
+docker-compose up -d
+
+docker-compose ps
+
+docker-compose logs
+
+docker-compose stop
+
+docker-compose start
+
+---------------------------------------------
+
+
+
+
+
+
+Mounting volume using image
+
+#docker volume create my-volume
+
+#docker volume inspect my-volume
+
+
+#cd /var/lib/docker/vloumes/my-volume/_data
+#ls lrt
+
+
+mounting this volume to one container:
+
+#docker run -d -it --name=mani --mount source=my-volume, destination-/usr/local/apache2/htdocs httpd:2.4
+
+
+
+
+
+

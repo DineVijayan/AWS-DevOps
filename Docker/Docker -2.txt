@@ -1,0 +1,141 @@
+1. create ubuntu machine
+2. install docker
+3. create docker file:
+   Req: centos, wget, vim
+
+4. go to ubuntu machine
+   create dir and go to that dir
+
+cat /etc/os-release
+  
+Run container:
+
+7. #docker run -itd --name <conatinername> <image name>
+
+8. enter into docker container:
+   #docker exec -it <container ID> /bin/bash
+
+   #vim    (check whether vim installed succesfully)
+
+
+   #wget   (check whether wget installed succesfully)
+
+9. Save your container: (create image from your running container)
+   #docker commit <container id> <new image name>
+
+   save your image in local:
+   #docker save -o /root/imgbackup.tar imagename
+
+   #docker load -i imgbackup.tar (loaded the image from your local)
+
+
+10. Login into your docker hub:(to save your image into docker hub)
+    #docker login <un> <pwd>
+     
+11. #docker tag myhttpd7pm manisa0912/myhttpd7pm
+
+12. #docker push manisa0912/myhttpd7pm
+ 
+--------------------------------------------------------------
+To write the "Dockerfile" we have to know the Commands:
+
+FROM - base image
+RUN - linux commnd exec
+WORKDIR - 
+COPY 
+ADD
+ENV
+EXPOSE
+CMD
+ENTRYPOINT
+
+Writing dockerfile:
+-------------------
+create file nano "Dockerfile"
+-----------------------------------------
+FROM httpd
+MAINTAINER pasu
+RUN apt-get update -y
+RUN apt-get install nano git -y 
+
+
+-----------------------------------------
+
+FROM ubuntu
+MAINTAINER pasu
+RUN apt-get update -y
+RUN apt-get install apache2 -y
+WORKDIR var/www/html
+COPY index.html index.html
+EXPOSE 80
+CMD ["apachectl", "-D", "FOREGROUND"]
+
+-------------------------------------------
+
+
+create image:
+#docker build -t <imagename> .  
+
+Update container:
+--------------------------------------------------------
+   FROM centos <base image>
+   MAINTAINER mani <author name>
+   RUN yum install vim -y <packages name>
+   RUN yum install git -y
+   RUN yum install wget -y
+-------------------------------------------------------
+
+------------------------------------------------------------
+Update image:
+
+FROM myhttpd   -----> here myhttpd is customised image
+LABEL Name="mani"
+RUN apt install git wget -y
+-----------------------------------------
+
+FROM centos
+LABEL Name="mani"
+RUN yum install httpd -y 
+CMD /bin/bash
+
+-----------------------------------------
+
+
+FROM centos
+LABEL Name="Mani"
+
+RUN cd /etc/yum.repos.d/
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+
+RUN yum -y install httpd
+
+CMD /bin/bash
+
+-----------------------------------------
+
+FROM ubuntu
+RUN apt-get update -y
+RUN apt-get install openjdk-11-jdk -y
+RUN mkdir /opt/tomcat
+WORKDIR /opt/tomcat
+ADD https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.62/bin/apache-tomcat-9.0.62.tar.gz .
+RUN tar -zxvf apache-tomcat-9.0.62.tar.gz
+RUN mv apache-tomcat-9.0.62/* /opt/tomcat
+EXPOSE 8080
+COPY ./sample.war /opt/tomcat/webapps
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
+-----------------------------------------
+
+`
+ENV DEBIAN_FRONTEND=noninteractive
+
+--------------------------------------------------------------------
+
+RUN cd /etc/yum.repos.d/
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+
+RUN yum -y install java
+
+CMD /bin/bash
