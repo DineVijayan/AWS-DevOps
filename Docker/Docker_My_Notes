@@ -1,0 +1,101 @@
+yum install docker //install docker
+
+service docker status //view the docker status
+
+service docker start //after installing the docker will be inactive. have to start the docker
+
+docker images //view the list of images 
+
+docker build -t httpd . //to build dockerfile to image
+
+docker ps //view the list of running container
+
+docker ps -a //view the all running & non-running countainer
+
+docker pull httpd //to pull the image from docker hub
+
+docker run -itd --name cont1 -p "9090:80" image id //to create a container. count1 is a name. 
+                                                     9090 is to change port from 80.
+
+docker exec -it container_id /bin/bash //to edit the conatainer. container id like 
+                                         f8 starting two dight of cont id.
+                                         After entering the container type ls go to htdocs -> index.html
+
+apt update //In container we cannot perform any command. so we have to install it
+
+apt install vim  -y //to view the index.html
+
+docker stop f8 //to stop the container 
+
+docker start f8 //to start the container
+
+docker rm -f 3c //to remove the container
+
+docker rmi 92 //to remove image
+
+docker system prune //to remove the cache images
+
+docker run -itd --name dinesh -p "9090:80" nginix //we can create a container without creating a image
+//for nginix html file will be after entering container ls -> usr -> share -> nginx -> html -> index.html
+
+cat /etc/os-release //to see the running os inside the container
+
+===========Push the image to dockerhub==============
+1. docker commit container_id new_image_name //want to push the image to dockerhub means convert the container to image
+
+2. doker save -o /root/imgbackup.tar image_name //to save the image in a local area for backup purpose
+
+3. docker load -i imgbackup.tar //in case image got missed we can use the local backup image using this command
+
+4. docker tag image_name docker_account_name/image_name //have to set a tag name to push the image to dockerhub for unique name
+
+5. docker login //to login the dockerhub
+
+6. docker push image_name //push the image to dockerhub
+======================================================
+
+docker logs container id //to see the container log 
+
+docker top container id //to see the process running like task manager
+
+docker stats container id //to see how many resource and memory occupied
+
+docker inspect containerid //to view the every information of the container
+
+docker info //to view the every information of the machine
+
+========Docker Volume========
+docker run -itd -p "9090:80" -v "/opt/www:/usr/local/apache2/htdocs" image_name //to create a docker volume y syncing local directoy and container directory
+
+========Docker Volume + Container Access======== 
+docker run -itd -p "9090:80" --name container1 -v "/usr/local/apache2/htdocs" httpd
+docker run -itd -p "2222:22" --name container2 --volumes-from container1:ro sshimage
+
+Docker Container Access (Port Forwarding:)
+
+***************************************************
+From ubuntu
+MAINTAINER pasu
+RUN apt-get update
+RUN apt-get install openssh-server -y
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN echo 'root:welcome' | chpasswd
+RUN mkdir /var/run/sshd
+CMD ["/usr/sbin/sshd", "-D"]
+==================================================
+
+=========Link(Two Tire Architecture)=========
+docker run -itd --name db -e "MYSQL_ROOT_PASSWORD=admin123" mysql //it is a database container to install mysql enviroinment variable important
+
+docker run -itd --name "wordpresscont" --link db:mysql -p "2424:80" wordpress //wordpress is webserver container
+
+======Basic docker command website=======
+https://geekflare.com/docker-commands/
+=========================================
+
+===Task===
+Docker Network 
+Docker compose
+
+
+
