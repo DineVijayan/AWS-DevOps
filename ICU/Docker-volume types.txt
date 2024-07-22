@@ -1,0 +1,38 @@
+
+Docker supports several types of volumes, each designed to fulfill different use cases. Here are the most common types:
+
+Bind mounts: 
+	This type of volume mounts a host file or directory into a container. With bind mounts, changes in the container or on the host machine are immediately reflected in the other. They offer high performance but are platform-dependent since they rely on the host's filesystem.Example:
+bash
+
+   docker run -v /host/path:/container/path ...
+   docker run -v /tmp/data:/usr/local/apache2/htdocs --name container1 -P httpd
+  
+===========================================================================================
+Named volumes:
+	 Docker manages these volumes and stores them in a specific location within the Docker directory (/var/lib/docker/volumes/ on Linux). Named volumes are easier to back up and share than bind mounts, and they work well across different platforms.Example:
+bash
+   docker volume create my_volume
+   docker volume inspect my_volume    
+   docker run -v my_volume:/container/path ...
+    
+   docker run -d -v my_volume:/usr/local/apache2/htdocs -p 80:80 httpd:latest
+===========================================================================================
+TMPFS mounts:
+
+ These are temporary filesystems stored in the host's memory. TMPFS volumes are not persisted on disk and are useful when you need temporary storage for sensitive data.Example:
+bash
+ 
+docker run --mount type=tmpfs,destination=/container/path ...
+
+docker run -d --mount type=tmpfs,destination=/usr/local/apache2/htdocs -p 8085:80 
+
+docker exec -it confident_pasteur ls /usr/local/apache2/htdocs
+============================================================================================
+
+Volumes from container: 
+	This type allows you to share data between containers. It's useful when you want to share configuration files or static assets between containers.Example:
+
+	docker run --volumes-from my_other_container ...
+
+These volume types offer flexibility and cater to different scenarios, enabling you to manage data effectively within Docker containers. Choose the appropriate type based on your application's requirements, data persistence needs, and performance considerations.
