@@ -1,0 +1,148 @@
+
+1. kops installation
+2. kubectl installation 
+3. IAM user or role
+4. Enter the environmental variable of AWS Access key & Secret Access key because kops only handle the enviromental variable
+5. Create a bucket
+6. Create public & private key using ssh-keygen used to login to the master and node by using this pvt & pub key
+7. Enter the environmental variable for name of the cluster and mention the bucket name for storage
+
+Step 1 -Search in google for kops installation
+------
+curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+chmod +x kops
+mv kops /usr/local/bin/kops
+
+Step 2 - Search in google for kubectl installation
+------
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+mv kubectl /usr/local/bin/kubectl
+
+Step 3 - search in google for Awscli installation
+------
+Aws Configure
+Create IAM User or Role
+Ec2
+S3
+route53
+IAM
+VPC
+
+Step 4
+------
+Assign a environmental variable:-
+export AWS_ACCESS_KEY_ID=AKIATCKASW5TAZLULTWT
+export AWS_SECRET_ACCESS_KEY=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
+
+Step 5
+------
+Create a S3 bucket
+aws s3 mb s3://11kopsbucket07 --region eu-west-3 --//command for creating a S3 bucket 11kopsbucket is bucket name 
+aws iam list-users --//this show the iam user we're using 
+aws s3 ls --// to list the bucket
+aws s3api put-bucket-versioning --bucket 11kopsbucket --versioning-configuration Status=Enabled
+
+Step 6
+------
+ssh-keygen //it will create a id_rsa.pub & id_rsa. This used to login to the master and worker node by using this public & private key
+
+Step 7
+------
+export name=dinesh.k8s.local
+export KOPS_STATE_STORE=s3://kops800
+
+Step 8
+------
+kops create cluster --zones us-east-1 ${name}
+Suggestions:
+ * list clusters with: kops get cluster
+ * edit this cluster with: kops edit cluster tharun.k8s.local
+ * edit your node instance group: kops edit ig --name=tharun.k8s.local nodes-eu-west-3c
+ * edit your control-plane instance group: kops edit ig --name=tharun.k8s.local control-plane-eu-west-3c
+
+Configuratin chages is done :- kops update cluster
+
+kops validate cluster //to check the cluster is ready to work
+
+-kubectl get nodes //to list the nodes
+
+-kubectl get ns //to list the namespace
+
+-kubectl get rs //to list the replica set
+
+-kubectl apply -f pod.yaml //to create a pod using yaml file
+
+-kubectl get pods //to list the pod
+
+-kubectl get pods -n default //to view the pod in default namespace
+
+-kubectl get deployment -n dinesh //to view the how many running pod & replicas in dinesh namespace
+
+-kubectl delete deployment "pod name" -n dinesh //to delete the entire deployment
+
+-kubectl create ns "namespace name" //to create a new namespace
+
+-kubectl delete pod "pod name" //to delete the pod
+
+-kubectl delete rs "name of the replicaset" //to delete the replicaset image
+
+-kubectl exec -it "podname" -- /bin/bash //used to login to the pod 
+
+-uname -a //to find what machine running in the container like in linux what flavor is running in the machine
+
+-apt-get install curl -y //to install the curl command
+
+-curl http://localhost:80 //to check wheather the application is running on the machine properly 
+
+-curl http://ip_address of your svc //to check the application is running internally
+
+-kubectl get all //to see every pod, cluster, replicaset, deployment, demonset in one command
+
+-kubectl describe pod "podid" /bin/bash //to view the comple information about the pod
+
+-kubectl get pods -o wide //to view the pod was runnning in which cluster
+
+-Kubectl logs podname //to view the log of the pod
+
+-Kubectl logs podname -c containername //to view the log of the container in a particullar pod
+
+To delete the cluster
+---------------------
+kops delete cluster --name=dinesh.k8s.local --state=s3://11kopsbucket07 --yes 
+
+To create a pod in a single node --> Node Selector
+--------------------------------------------------
+kubectl label nodes <node-name> disktype=ssd //node-name is given as dinesh before the container specify the name dinesh
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpd-deployment
+  labels:
+    app: httpd
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      nodeSelector:
+        disktype: dinesh
+      containers:
+      - name: httpdpod
+        image: httpd
+        ports:
+        - containerPort: 80
+----------------------------------------------------------------------------------
+
+echo -n 'root' | base64 //to encript the data using basr64 ormat in secrets
+echo -n 'cm9vda==' | base64 --decode //to decode the encripted data
+----------------------------------------------------------------------------------
+
+How to ssh into a node machine?
+->ssh ubuntu@publicip(or)privateip of node machine
