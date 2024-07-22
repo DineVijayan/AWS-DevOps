@@ -1,0 +1,222 @@
+Kubernetes Objects
+==================
+1) POD ---> POD
+2) Namespace 
+3) Replicaset ---> Replica + POD --> Replicaset strictly with pods --> In the replicaset it has recreate deployment statergy thats why not used in realtime
+4) Daemonset ---> Daemonset + pod --> Damonset strictly with nodes --> mainly used to manage the monitoring tools.
+5) Deployment ---> Deployment + Replica + POD --> deployment is used in realtime --> because in the replicaset it has a roll-update deploment statergy. 
+============================================================================
+
+What is Replication Controller?
+It is the older version of replicaset. A ReplicationController (RC) in Kubernetes is a resource that ensures a specified number of pod replicas are running at any 
+given time. If the number of running pods falls below the desired count, the ReplicationController will create new pods. If there are too many pods, it will terminate the extra ones.
+
+Diff b/w Replicaset and Replication Controller?
+
+Deployment Statergies
+=====================
+recreate -> It will crash the every server in a same time and recreate the updated servers at a same time. It has a down time issue
+roll-update -> It will create a new container once it got successfully running and got trrafic meance it will delete the old container. No down time
+b-g deployment -> There will be two identical servers once the changes is done in green env they will swap the url to the production env. There will be no down time. 
+                  blue was prod env green was clone env. but it has two env so cost wise it will be high.
+
+Lifecycle of POD:
+=================
+1) Pending:- Issuing the cmd it will work with the scheduler and create the pod and allocate the resource
+2) Running:- The node will allocated and container starts to create by pulling the image from DockerHub
+3) Succeeded:- Successfuly container getting terminated
+4) Failed:- Due to some reason, Application getting crashed and not started
+5) CrashLoopBackOff:- Its a retry status to restart the containers after a failure 
+=====================================================================================
+
+How to troubleshoot crashloopbackoff?
+->Check the pod status & events using the describe command It will give clues about why the pod is crashing. 
+->Check the logs of the pod
+->Insufficient CPU or memory resources can cause Pods to crash.
+->Ensure that the configuration files (such as ConfigMaps and Secrets) are correctly configured and available to the Pod
+->Ensure that the written yaml file information are correct 
+
+crash loop backoff reason
+->resouce constrains 
+->network 
+->miss configuration issue 
+->image corrupted, 
+->liveness prob readiness prob(Not working properly)
+=============================================================================
+
+Liveness prob?
+A liveness probe in Kubernetes is a mechanism to check whether an application inside a container is still running. If the liveness probe fails, Kubernetes will 
+restart the container, helping to ensure that your application remains available and self-healing in the event of failure.
+
+Readiness prob?
+The kubelet uses readiness probes to know when a container is ready to start accepting traffic. which ensure the overall health of a container. readiness probes 
+specifically indicate whether a container is ready to receive requests.
+==============================================================================
+
+Their are two type of ways to write the command line
+====================================================
+1) Imperative way //write the command in one line like kubectl run pod --image nginx
+2) declarative way //write the command like a docker file. declarative way is used in ever organisasion
+
+Diff b/w Imperative way & declarative way?
+===============================================================================================================
+
+Configuration for creating Ec2 in kubernetes
+============================================
+Master Node --> 2gb, 1.5cpu --> t2.medium(2cpu, 4gb memory)
+Worker Node --> 700mb, 0.5cpu --> t2.micro(1cpu, 1gb memory)
+==============================================================================
+
+There are 4 type of port:
+containerPort //container and target port no should be same port:80
+targetPort //container and target port no should be same port:80
+port //This port can be different from container and target port
+nodePort //nodePort should be in b/t 30000-32767
+===============================================
+
+Kops -->Kops mainly used for AWS cloud it automatically create the load balancer, autoscalling, VPC, IAM, Route53 and it connect the worker node in the master node automatically. 
+Kubeadm -->Kubeadm is mostly used in onprimises we have to create everything manually and mannually connect the worker node to the master node.
+Kubespary -->Kubespary is used in development & testing. It is not mostly used in industries. 
+Minicube -->Minicube is used in development & testing. In the local laptop also using minicube we can create a cluster. 
+
+Managed cluster in AWS, Asure, Google
+=====================================
+EKS -> Elastic k8s service
+AKS -> Asure k8s service
+GKE -> Google k8s engine
+
+Networking in POD:
+=================
+Application to Application commuication inside K8s can be done by following methods,
+- Container to Container communication --> Network Namespace
+- Container from one pod to Another Pod from same Node --> Network Bridge using Ethernet
+- Container from one Node to Another Node --> Network Routing Table
+
+Namespace in kubernetes?
+Namespaces are a way to organize clusters into virtual sub-clusters — they can be helpful when different teams or projects share a Kubernetes cluster. 
+Any number of namespaces are supported within a cluster, each logically separated from others but with the ability to communicate with each other.
+
+4 types of default namespace
+============================
+default
+kube-node-lease
+kube-public
+kube-system
+
+K8s Services
+============
+NopePort IP -->To manage the external trafic efficiently -->It was a default services in k8s -->node default port no(or)node port ip address range: 30000-32767 -->it will take the default port 30008
+Cluster IP -->To manage the internal trafic efficiently -->cluster ip is default services in k8s -->it will manage the pod ips and port no and node info
+Load Balancer -->It will provide the load balancer using 3rd party services
+Ingress controller -->ingress is a free load balancer provided by k8s -->Nginx Ingress controller is mosty used
+---------------------------------------------------------------------------
+
+config file --> ConfigMaps are typically used to store non-sensitive configuration data. Configmap store the data in a plain text
+Secrects --> Secrets are used for storing sensitive information. Secrets stores the data in base64 format
+
+Diff b/w Config map and Secrets?
+ConfigMaps are typically used to store non-sensitive configuration data. Configmap store the data in a plain text , while Secrets are used for storing sensitive information. Secrets stores the data in base64 format
+---------------------------------------------------------------------------
+Node-selector--> Node selector is used to create or recreate a pod within a specific node 
+
+---------------------------------------------------------------------------
+Volume
+======
+Persistant volume --> Persistent Volumes (PVs) provide storage for your application’s Pods. Data written to a volume is managed independently of the Pods that access it, ensuring the data remains available after Pod restarts and failures.
+Persistant volume claim	--> A PVC is a request for storage by a user. It specifies the amount of storage needed for that application. Kubernetes matches the PVC to an appropriate PV and binds them together.
+Persistant --> Persistant storage is used to store the data even the pod or node restarted. The primary components of persistant storage ws PV, PVC
+Non-Persistant --> Non-Persistant volume that doesn't store the data even the pod or node restarted. The data will be stored in emptyDir it exists as long as the Pod is running on that node
+diff b/w Presistant volume & Presistant volume claim	
+
+Access modes 
+============
+readwriteonce->
+readonlymany
+readwritemany
+readwriteoncepod
+
+What is HPA?
+A HorizontalPodAutoscaler (HPA for short) automatically updates a workload resource (such as a Deployment or StatefulSet), with the aim of automatically scaling the workload to match demand.
+
+What is Helm Chart?
+
+--------------------------------------------------------------------------
+Kubectl Commands
+================
+apt update
+
+kops installation :
+-------------------
+curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+chmod +x ./kops
+sudo mv kops /usr/local/bin/kops
+
+kubectl installation:
+--------------------- 
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+
+apt update 
+
+//we have apply a IAM user for creating the Ec2 server in AWS
+aws configure
+
+apt install awscli //in ubuntu server we have to install awscli to access the aws console
+
+export Name=dinesh.k8.local //to create an environmental variable 
+
+export kOPS_STATE_STORE=s3://bucket_name //to save the configuration file of the cluster in s3bucket
+
+kops create cluster --zones us-east-1a ${NAME} //to create a cluster starting command
+
+//these commands will automaticaly provided on the cluster is created
+kops get cluster //to list the no of culsters
+
+kops edit ig --name=dinesh.k8.local nodes-us-east-1a //to edit the worker node specification
+
+kops edit ig --name=dinesh.k8.local control-plane-us-east-1a //to edit the master node specification
+
+kops update cluster --name dinesh.k8.local --yes --admin //to create a cluster last command
+
+kops validate cluster //to check master & worker node have successfully created. it will take 10 mins to create a cluster
+//
+
+kops delete cluster --name-dinesh.k8s.local --state=s3://bucket_name --yes //to delete the cluster
+
+kubectl apply -f pod.yaml //This will create the pod in worker node apply the command once after declarative file yamal file is written
+
+kubectl get node //to list the nodes
+
+kubectl get pods //to list the pods in the default namespace
+
+kubectl describe pod pod_name //to know the complete information about the pod 
+
+kubectl get pods-n namesspace_name //to filter the pods with the namespace 
+
+kubectl get ns //to list the namespace
+
+kubectl create ns prime //to create the new namespace 
+
+kubectl delete pod pod_name //to delete the pod
+
+kubectl delete deployment --all //to delete all deployment created pod
+
+kubectl get replicaset //to view how many replica is available in default namespace
+
+kubectl get replicaset -n prime //to view how many replica is available in prime namespace
+
+kubectl get daemonset //to view how many daemonset is available in default namespace
+
+kubectl get deployment -n prime //to view how many deployment is available in prime namespace
+
+kubectl get svc //to view the service created
+
+kubectl get pod -o wide //to view the details of the pod 
+
+kubectl delete svc service_name //to delete the service
+
+kubectl exec -it pod_name /bin/bash //to get into the pod
+
+
+

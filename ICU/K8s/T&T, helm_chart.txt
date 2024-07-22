@@ -1,0 +1,51 @@
+Taints and Toleration
+=====================
+Taint --> It acts at node level
+Toleration --> It acts at pod level
+
+Taint Effects:- NoSchedule --> Using this it will not delete the existing pod in the node and schedule the pod in the tainted node
+                Prefer No Schedule --> This will create the tainted and non-tainted pod also
+                No Execute --> This will delete the existing pod in the node and schedule the pod in the tainted node
+
+NoSchedule
+==========
+-kubectl taint nodes 'i-08f5ca7801522784d' app=devops:NoSchedule //to taint the node with NoSchedule
+-kubectl taint nodes 'instance ami id' app=devops:NoSchedule- //to untaint the node
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-noschedule
+spec:
+  containers:
+    - name: nginx
+      image: nginx:latest
+  tolerations:
+    - key: "app"
+      operator: "Equal"
+      value: "devops"
+      effect: "NoSchedule"
+
+Helm Chart
+==========
+helm create chart_name //to create a new chart
+helm search
+helm pull
+helm install nginx ./my_nginx //to give a name to chart, it will install the files, to run the pod, svc
+helm uninstall nginix
+helm ls //to list the charts
+helm package ./myhttpd //to pack the char for each update. ./myhttpd is a path
+helm list
+
+helm create chart
+=================
+|-nginx //create a folder
+|-Chart.yaml
+|-values.yaml
+|-templates/
+|-deployment.yaml
+|-service.yaml
+
+tree command
+============
+apt install tree
