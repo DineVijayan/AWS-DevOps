@@ -1,0 +1,220 @@
+ORDER OF CREATING TARRAFORM
+===========================
+1) Tarraform Creating Syntax
+2) Create VPC
+3) Create Pub & Pvt Subnet
+4) Create Internet Gate Way(IGW)
+5) Create Pub Routing Table //In CIDR_block= "0.0.0.0/0", In Gateway_id we have to add IGW gateway
+6) Route Pub Table Association //Connect the pub route table to pub subnet
+7) Create Elastic IP
+8) Create NAT Gateway
+9) Create Pvt Routing Table //In CIDR_block= "0.0.0.0/0", In Gateway_id we have to add NAT gateway
+10) Route Pvt Table Association //Connect the pvt route table to pvt subnet
+11) Create Pub & Pvt Security Group 
+12) Create EC2 in Tarraform
+    =======================
+Public EC2 Instance
+===================
+resource "aws_instance" "jumpbox" {
+    ami = "ami_id"
+    instance_type = "t2.micro"
+    subnet_id = aws_subnet.pubsub.id
+    key_name = "winweb"
+    associate_public_ip_address = true
+    vpc_security_group_ids = [aws_security_group.allow_all.id]
+}
+
+Private EC2 Instance
+====================
+resource "aws_instance" "jumpbox" {
+    ami = "ami_id"
+    instance_type = "t2.micro"
+    subnet_id = aws_subnet.pubsub.id
+    key_name = "winweb"
+    vpc_security_group_ids = [aws_security_group.allow_all.id]
+} 
+
+=============================================================================================
+Terraform Installation
+======================
+sudo yum install -y yum-utils shadow-utils
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+sudo yum -y install terraform
+
+Terraform coding
+================
+terraform init //initializing the tarraform
+
+terraform validate //it will show the syntax error
+
+terraform plan //their is no mistake in code. it will show the basic error
+
+terraform apply //creating the vpc
+
+terraform show //will list everything we created will be in readable format
+
+terraform state list //will list everything we created in simple way
+
+terraform state show "id" //will list the particullar code 
+
+terraform refresh //is to refresh the state file if someone have done changes in the console manually
+
+terraform destroy //it will destroy everything
+
+terraform import "map the resource" "instance_ID" //statefile got missed means to create a state file for instance
+
+printenv //used to list the environmental variable
+
+ICU Topics
+==========
+->Multiple provider
+->Multiple accounts
+->META-arguments:-
+->Immutable
+->Counts
+->For each map:-
+-for each = {
+-  dev  = "dineshdevproject11"
+-  qa   = "dineshqaproject11"
+-  test = "dineshtestproject11"
+-  prod = "dineshprodproject11"
+-}
+-bucket = "${each.key}-${each.value}"
+-tags = {
+-  Name = "dinesh-bucket"
+-}
+ 
+->For each set :-
+for_each = toset(["dinesh","suresh","mohan"])
+name = each.key 
+
+Teraform lifecycle:-
+1)Create before destroy:-
+-lifecycle{
+-create_before_destroy = True //default in false
+}
+
+2)Prevent before destroy
+-lifecycle {
+-prevent_destroy = True //default in false
+}
+
+3)Ignore changes
+-lifecycle{
+-ignore changes = [
+ # list the attribute to apply ignore changes]
+}
+
+4)Depends on 
+-depends_on = [aws_vpc.vpc-dev] //you want create in order because terraform inorder in nature 
+
+provisioners
+============
+
+file ->Is used to copy the source code from the local to the ec2 machine. All the provisioner has to be give with within the ec2 machine resource
+---- 
+provisioner "file" {
+  source      = "apps/index.html"
+  destination = "/tmp/index.html"
+}
+
+Remote
+------
+connection{
+  type = "ssh"
+  host = self.public_ip  //it will asign the public ip once the machine is created
+  user = "ec2-user"
+  password = ""
+  private_key = file("privatekey/iam-ppk.pem")  
+
+provisioner "remote-exec" {
+  inline = [
+    "sleep 120"
+    "sudo cp /tmp/index.html /var/www/html"
+  ]
+}
+
+Local
+
+Terraform:
+==========
+Terraform is immutable in nature
+Terraform will detele first & create the new one
+Terraform is inorder in nature
+
+cli, export variable, tfvars
+============================
+cli always overwrite the variable file
+cli command to overwrite the variable file:-
+-terraform plan --var="ec2_instance_type=t3.large" --var="ec2_instance_count=2"
+
+export used to overwrite the variable file
+export command to overwite the variable file:-
+-export TF_VAR_ec2_instance_count=1
+-export TF_VAR_ec2_instance_type=t3.large
+
+terraform.tfvars used to overwirte multiple changes in the variable file
+
+preority:-
+========
+cli
+web.auto.tfvars
+terraform.tfvars ---> mosttly used in realtime
+environment variables
+variable file
+--------------------------------------------------------------------
+
+If you are having more tfvars file means for calling the specific file:-
+- terraform plan -var-file="dev.tfvars"
+
+variable with file
+==================
+user_data = file("apache-install.sh") //we've to create a user data file and save it with "filename".sh 
+
+Terraform workspace subcommands
+===============================
+delete
+list --> terraform workspace list
+new --> terraform workspace new "name"
+select --> terraform workspace select "name"
+show
+---------------------------------------------------------------------
+-> difference between In terraform saving the state file in remote than local?
+
+Local State File
+Pros:
+
+Simplicity: Storing the state file locally is straightforward and easy to set up. By default, Terraform stores the state file on the local disk.
+
+No Additional Setup: No need for additional configuration or permissions to store the state file locally.
+
+Cons:
+
+Limited Collaboration: When the state file is stored locally, it becomes difficult for multiple team members to collaborate. Each team member would have their own copy of the state file, leading to potential conflicts and inconsistencies.
+
+Risk of Loss: If the local machine is lost, damaged, or corrupted, the state file may be lost unless it is backed up manually.
+
+Manual Backup: Users need to manually ensure the state file is backed up and versioned properly.
+
+Concurrency Issues: Managing the state file locally can lead to concurrency issues where multiple users are trying to make changes simultaneously, leading to potential state conflicts.
+
+Remote State File
+Pros:
+
+Collaboration: Storing the state file remotely allows multiple team members to access and update the state file, ensuring that everyone is working with the most current state.
+
+Backup and Recovery: Remote backends often provide built-in backup and recovery options, reducing the risk of losing the state file.
+
+Locking: Many remote backends support state locking, which prevents concurrent operations that could corrupt the state file.
+
+Versioning: Remote backends can offer versioning, allowing users to revert to previous state files if needed.
+
+Accessibility: The state file can be accessed from any location, which is particularly useful for distributed teams.
+
+Cons:
+
+Complexity: Setting up a remote backend can be more complex and may require additional configuration and management.
+
+Cost: Depending on the backend used, there may be costs associated with storing and managing the state file remotely.
+
+Dependency on Remote Service: The availability and reliability of the remote backend service become critical. If the service is down, Terraform operations may be blocked.
