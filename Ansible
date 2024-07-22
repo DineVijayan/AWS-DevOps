@@ -1,0 +1,137 @@
+there are two types 
+withpip --> will not automatically install the configuration file
+withoutpip --> this will automatically install the configuration file -> Inventory file and ansible.cfg file.
+               The file will be created in path /etc/ansible/ move the file to /home/ec2-user
+
+Steps to do ansible
+===================
+downlord the pageant from google "downlord putty"
+Add the private key in the pagent of the node
+while login the Master machine dont give the prive key to login. Select the Auth in putty. select the Allow agent forwarding
+Install the ansible in Master machine
+In the inventory file give the Slave machine public or private key
+give wget (https://raw.githubusercontent.com/ansible/ansible/stable-2.11/examples/ansible.cfg) to get the ansible.cfg file
+
+Amazon linux epel command
+=========================
+sudo amazon-linux-extras install epel -y
+
+Install phython
+===============
+sudo yum install python-pip -y
+
+Install the Ansible
+===================
+sudo yum install ansible
+pip install ansible
+sudo amazon-linux-extras install ansible2 -->Amazon linux machine and in amazon python package is already installed
+
+ansible configuration path
+==========================
+/etc/ansible/ansible.cfg
+
+inventory       = /etc/ansible/hosts
+sudo_user        = root
+host_key_checking = False
+
+ansible inventory file path
+===========================
+/etc/ansible/hosts
+
+Node1 ansible_host= 'IP_ADDRESS ansible_user=ubuntu ansible_ssh_private_key_file=/etc/ansible/newkey.pem
+
+To check the connectivity in master to node
+===========================================
+ansible all -i hosts -m ping
+ansible all -m ping
+
+Adhoc command
+=============
+ansible all -i slave.txt -m yum -a "name=httpd state=installed" -b //to install the httpd in all the node machines
+ansible all -i slave.txt -m service -a "name=httpd state=started" -b //to start the httpd
+ansible 'give the ip of specific node' -m yum -a "name=httpd state=installed" //to install httpd in specific one node machine
+ansible all -i slave.txt -m copy -a "src='give the master path want to copy' dest='give the node path to place the copied file'" -b// to copy the file from master to node
+
+Playbook command --> playbook will be written in a yaml file
+================
+- hosts: all
+  remote_user: ec2-user
+  become: yes
+  tasks:
+       - name: i am going to install apache
+         yum:
+           name: httpd
+           state: Installed
+       
+       - name: starting my apache
+         service:
+           name:httpd
+           state: started
+
+       - name: copy index.html
+         copy:
+           src: ./index.html
+           dest: /var/www/html/index.html
+           mode: '0777'
+
+Playbook file in loop
+=====================
+- hosts: all
+  remote_user: ec2-user
+  become: yes
+  tasks:
+       - name: Install packaging one by one
+         yum:
+           name: "{{ item }}"
+           state: present
+         loop:
+           - mysql
+           - php
+           - unzip
+           - wget
+
+Install jenkins with playbook
+=============================
+- hosts: all
+  remote_user: ec2-user
+  become: yes
+  tasks:
+       - name: Install jenkins
+         yum_repository:
+            name: jenkins 
+            description: jenkins yum repo
+            baseurl: enter the url
+            gpgkey: enter the url
+
+       - name: install java and jenkins
+         yum:
+            name: "{{ item }}"
+            state: present
+         loop:
+            - java
+            - jenkins
+
+       - name: start jenkins
+         service:
+            name: jenkins
+            state: started
+----------------------------------------------------------------------
+
+To run the yaml file in ansible command
+=======================================
+ansible-playbook -i hosts apache.yaml
+
+Vault command
+=============
+ansible-vault create first.yaml //this will encrypt the file while creating
+ansible-vault encrypt first.yaml //to encrypt the yaml file 
+ansible-vault decrypt first.yaml
+ansible-vault view first.yaml //to view the encrypted file
+ansible-vault edit first.yaml //to edit the yaml file is encrypted
+ansible-vault rekey first.yaml //to change the encryped password 
+
+Roles Command
+=============
+sudo yum install tree -y
+
+
