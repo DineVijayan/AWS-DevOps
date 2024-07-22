@@ -1,0 +1,140 @@
+Topic:-
+1st class ==> Automate to run one job after another-
+
+2nd class ==> Users Management
+		-first create the user in manage jenkins->user->create new user
+		-downlord the plugin role based strategy manage jenkins->plugins
+		-In security->Authorization->select role based strategy->apply->save
+		-select manage and assign roles
+              Webhooks 
+		-In git hub repository settings->webhooks->Payload URL give jenkins URL/github-webhook/->cotent type select application/json->Add weebhook
+		-configure->Source code management->select Git->Repository URL give git URl->build triggers->select Github hook trigger for GitScm polling->apply->save
+		Pipeline:-
+		delivery pipeline
+		build pipeline
+		build monitor view
+		-These three pipelines used to view the console output in different ways
+
+3rd class ==> Tomcat download, untar tomcat, tomcat port change, tomcat start, 
+              setup a password for tomcat, downlord sample.war file in jenkins job, 
+              tell that to jenkins use pugin, app deploy.
+
+setup a username & password for tomcat - opt/apache-tomcat-9.0.85/conf/tomcat-user.xml
+=========================================================================================
+
+/var/lib/jenkins //jenkins path
+
+=======Change port no of Jenkins=======
+usr -> lib -> systemd -> system -> jenkins.service //to change the port no of jenkins
+
+systemctl daemon-reload //After changing jenkins port have to reload the daemon 
+
+service jenkins restart //to restart the jenkins
+
+=======Change port no of Tomcat=======
+apache-tomcat-9.0.85 -> conf -> server.xml //to change the prot no of tomcat
+
+./shutdown.sh //after changing the port no shutdown and restart the tomcat 
+
+./startup.sh //to start the tomcat
+
+Tomcat deployment path
+======================
+/usr/local/tomcat/webapps
+
+======================================================================================
+
+cd /opt //to downlord the tomcat file from net and place the file in opt place
+
+wget <link> //copy link from google of tomcat
+
+tar -zxvf <file name> //to untar the file
+=======================================================================================
+apache-tomcat->conf->tomcat-users.xml
+root@ip-172-31-41-38:/opt/apache-tomcat-8.5.75/conf# vi tomcat-users.xml
+***********************************************************************************************************
+   <role rolename="manager-gui"/>
+   <role rolename="manager-script"/>
+   <role rolename="manager-jmx"/>
+   <role rolename="manager-status"/>
+   <user username="admin" password="admin" roles="manager-gui,manager-script,manager-jmx,manager-status"/>
+   <user username="deployer" password="deployer" roles="manager-script"/>
+---------------------------------------
+Inform the username and pass to jenkins of the tomcat
+-----------------------------------------------------
+downlord the plugin Deploy to container 
+configuration->build steps->add post build action->select Deploy war/ear to a container 
+
+Go to this below directory and edit the file "context.xml"
+-------------------------------------------------------------
+/opt/apache-tomcat-8.5.75/webapps/manager/META-INF
+
+Ex:
+root@ip-172-31-41-38:/opt/apache-tomcat-9.0.59/webapps/manager/META-INF# vi context.xml
+
+comment the below line in the "context.xml" file
+Ex:
+***********************************************************************
+<!--
+<Valve className="org.apache.catalina.valves.RemoteAddrValve"
+         allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> 
+-->
+***********************************************************************
+
+=====Plugin=====
+1) Role based Authorization Stategy //used for assinging the user level permisions called user management 
+	-Global roles
+	-item roles
+	-Agent roles
+2) Delivery Pipeline, Build Pipeline, Build Monitor View //To view to output in different way
+
+3) Deploy to container //used for Tomcat to jenkins for app deploy
+
+=========================Master & Nodes============================
+java install:
+-------------
+1) sudo add-apt-repository ppa:webupd8team/java
+2) apt-get update && apt-get upgrade
+3) sudo apt install openjdk-8-jdk
+4) java -version
+======================
+Create two files in .ssh:
+-------------------------
+touch id_rsa
+touch id_rsa.pub
+======================
+ssh localhost //to check wheather ssh communicates with instance
+
+chmod 400 id_rsa //to keep the private file in read format
+
+ls -lrta //see the hidden files
+======================
+
+ chown jenkins:jenkins *
+===============================================================================
+
+Shared Library
+==============
+In jenkins website->system->Global pipeline libraries
+
+Job imort plugin
+================
+Downlord the job import plugin 
+manage jenkins->system->job import plugin
+
+Audit plugin - used to audit the logs jenkins file
+============
+downlord audit plugin
+manage jenkins->system->audit plugin
+
+java home path
+==============
+find /usr/lib/jvm/java-1.8* | head -n 3 //to view the java home path
+
+Master & Node
+=============
+-> ssh-keygen give in master machine 
+-> give the public key of sshkeygen to the node machine authentication key
+
+reference :-
+https://www.youtube.com/watch?v=Se7JtzFVZGE&t=477s
