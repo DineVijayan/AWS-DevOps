@@ -1,0 +1,19 @@
+server {
+    listen 18081;
+    server_name test-de5.adfdata.net;
+    client_max_body_size 0;
+ 
+ 
+    access_log /opt/logs/rule_engine_access.log;
+    error_log /opt/logs/rule_engine_error.log;
+ 
+    location / {
+        proxy_set_header X-Forward-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_pass http://test-de1.adfdata.net:18081;
+    }
+}
+
+
+netstat -tuplen | grep  LISTEN

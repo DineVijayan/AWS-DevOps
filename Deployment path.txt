@@ -1,0 +1,7 @@
+Deployment paths
+================
+apache2 -> /usr/local/apache2/htdocs
+httpd -> /var/www/html
+jenkins -> /var/lib/jenkins 
+nginx -> /usr/local/nginx
+tomcat -> /usr/local/tomcat/webapps
